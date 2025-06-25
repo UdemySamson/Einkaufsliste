@@ -16,15 +16,24 @@ struct ContentView: View {
     @State private var newItemText = ""
     
     init() {
-        if let storedItems = UserDefaults.standard.array(forKey: "einkaufslistestorage") as? [String] {
+        if let storedItems = UserDefaults.standard.array(forKey: "einkaufslistestorage") as? [String], !storedItems.isEmpty {
             _einkaufsliste = State(initialValue: storedItems)
+        }
+        else {
+            _einkaufsliste = State(initialValue: [])
         }
     }
     
     var body: some View {
         NavigationView {
-            List(einkaufsliste, id: \.self) {
-                artikel in Text(artikel)
+            List {
+                ForEach(einkaufsliste, id: \.self) {
+                    artikel in Text(artikel)
+                }
+                .onDelete {
+                    offsets in einkaufsliste.remove(atOffsets: offsets)
+                    UserDefaults.standard.set(einkaufsliste, forKey: "einkaufslistestorage")
+                }
             }
             .navigationTitle(Text("Einkaufsliste"))
         }
